@@ -21,4 +21,5 @@ XBeeを使用して複数モジュールによる双方向通信を行うこと�
 |DH<br>Destination Address High|0|0|0|
 |DL<br>Destination Address Low|FFFF|0|0|
 |AP<br>API Enable|API Mode Without Wscapes[1]|API Mode Without Wscapes[1]|API Mode Without Wscapes[1]|
+注.IDは特に指定はないが同じネットワークのモジュールは同じIDにする必要がある。
 

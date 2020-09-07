@@ -104,6 +104,7 @@ public:
 
 
 	template <typename T> T diassemblyReceivePacket(uint8_t *buf, uint16_t bufLength){
+		sortRecievePacket<T>(buf, bufLength);
 		T tmp;
 		for(uint8_t n=0; n<sizeof(T); n++){
 			*((uint8_t *)&tmp+n) = *(buf + n + 15);
@@ -137,6 +138,32 @@ private:
 		}
 		 buf[length-1] = 0xFF - (sum & 0xFF);
 	}
+
+	template<typename T> void sortRecievePacket(uint8_t *buf, uint8_t bufLength){
+		uint8_t tmpArrey[16 + sizeof(T)] = {};
+		uint8_t position = 0;
+		while(*(buf+position++) == 0x7e);
+		for(uint8_t n=0; n< 16+sizeof(T); n++){
+			if(position + n < 16+sizeof(T)){
+				tmpArrey[n] = *(buf+position+n);
+			}else{
+				tmpArrey[n] = *(buf+n-(16+sizeof(T)));
+			}
+		}
+		for(uint8_t n=0; n<16+sizeof(T); n++){
+			*(buf+n) = tmpArrey[n];
+		}
+		if(tmpArrey[0] == 0x7E){
+			if(tmpArrey[1] == (sizeof(T)+12)>>8 && tmpArrey[2] == (sizeof(T)+12)&0xff){
+				if(tmpArrey[3] == 0x90){
+					return;
+				}
+			}
+		}
+		sortRecievePacket<T>(buf, bufLength);
+	}
+
+
 };
 
 #endif /* INC_XBEE_HPP_ */

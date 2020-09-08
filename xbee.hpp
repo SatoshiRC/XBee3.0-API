@@ -142,12 +142,12 @@ private:
 	template<typename T> void sortRecievePacket(uint8_t *buf, uint8_t bufLength){
 		uint8_t tmpArrey[16 + sizeof(T)] = {};
 		uint8_t position = 0;
-		while(*(buf+position++) == 0x7e);
+		while(*(buf+position) != 0x7e) position++;
 		for(uint8_t n=0; n< 16+sizeof(T); n++){
 			if(position + n < 16+sizeof(T)){
 				tmpArrey[n] = *(buf+position+n);
 			}else{
-				tmpArrey[n] = *(buf+n-(16+sizeof(T)));
+				tmpArrey[n] = *(buf+n+position-(16+sizeof(T)));
 			}
 		}
 		for(uint8_t n=0; n<16+sizeof(T); n++){
@@ -156,8 +156,18 @@ private:
 		if(tmpArrey[0] == 0x7E){
 			if(tmpArrey[1] == (sizeof(T)+12)>>8 && tmpArrey[2] == (sizeof(T)+12)&0xff){
 				if(tmpArrey[3] == 0x90){
+					for(uint8_t n=0; n<16+sizeof(T); n++){
+						*(buf + n) = tmpArrey[n];
+					}
 					return;
 				}
+			}
+		}
+		for(uint8_t n=0; n<16+sizeof(T); n++){
+			if(n==0){
+				*(buf + 16+sizeof(T)-1) = tmpArrey[n];
+			}else{
+				*(buf + n-1) = tmpArrey[n];
 			}
 		}
 		sortRecievePacket<T>(buf, bufLength);
